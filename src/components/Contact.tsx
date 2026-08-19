@@ -30,29 +30,28 @@ export default function Contact() {
     setStatus('loading');
     setErrorMsg('');
 
-    try {
-      const res = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/notify-lead`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-          },
-          body: JSON.stringify({
-            name: form.name,
-            email: form.email,
-            phone: form.phone || null,
-            trade: form.trade || null,
-            message: form.message || null,
-          }),
-        }
-      );
-
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body.error || `Request failed (${res.status})`);
+    const res = await fetch(
+      'https://hooks.zapier.com/hooks/catch/28493492/4treoy3/',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          phone: form.phone || null,
+          trade: form.trade || null,
+          message: form.message || null,
+        }),
       }
+    );
+
+    if (!res.ok) {
+      throw new Error(`Request failed (${res.status})`);
+    }
+
+      
 
       setStatus('success');
       setForm({ name: '', email: '', phone: '', trade: '', message: '' });
