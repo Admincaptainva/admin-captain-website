@@ -25,39 +25,37 @@ export default function Contact() {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+ async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setStatus('loading');
     setErrorMsg('');
 
-    const res = await fetch(
-      'https://hooks.zapier.com/hooks/catch/28493492/4treoy3/',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: form.name,
-          email: form.email,
-          phone: form.phone || null,
-          trade: form.trade || null,
-          message: form.message || null,
-        }),
+    try {
+      const res = await fetch(
+        'https://hooks.zapier.com/hooks/catch/28493492/4treoy3/',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            name: form.name,
+            email: form.email,
+            phone: form.phone || null,
+            trade: form.trade || null,
+            message: form.message || null,
+          }),
+        }
+      );
+if (!res.ok) {
+        throw new Error(`Request failed (${res.status})`);
       }
-    );
-
-    if (!res.ok) {
-      throw new Error(`Request failed (${res.status})`);
-    }
-
-      
 
       setStatus('success');
       setForm({ name: '', email: '', phone: '', trade: '', message: '' });
-    } catch {
+    } catch (err: any) {
       setStatus('error');
-      setErrorMsg('Something went wrong. Please try again or call us directly.');
+      setErrorMsg(err.message || 'Something went wrong');
     }
   }
 
