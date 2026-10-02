@@ -76,7 +76,7 @@ export default function ChatWidget() {
       setForm({ name: '', email: '', phone: '', trade: '', message: '' });
     } catch {
       setStatus('error');
-      setErrorMsg('Something went wrong. Please try again or call us at (612) 568-0566.');
+      setErrorMsg('Something went wrong. Please try again or call us at (763) 496-6613.');
     }
   }
 
@@ -92,7 +92,7 @@ export default function ChatWidget() {
           setOpen((v) => !v);
           setBump(false);
         }}
-        aria-label={open ? 'Close free admin audit form' : 'Open free admin audit form'}
+        aria-label={open ? 'Close free 30-day pilot form' : 'Open free 30-day pilot form'}
         className={`fixed bottom-5 right-5 sm:bottom-6 sm:right-6 z-50 flex items-center gap-2.5 rounded-full bg-[#FFA800] hover:bg-[#E09600] text-[#0b1829] pl-4 pr-5 py-3.5 shadow-lg shadow-[#FFA800]/30 transition-all duration-300 hover:scale-105 active:scale-95 ${bump && !open ? 'animate-[pulse_2s_ease-in-out_infinite]' : ''}`}
       >
         {open ? (
@@ -101,7 +101,7 @@ export default function ChatWidget() {
           <Wrench className="w-5 h-5 flex-shrink-0" />
         )}
         <span className="font-bold text-sm whitespace-nowrap">
-          {open ? 'Close' : 'Free Admin Audit'}
+          {open ? 'Close' : 'Free 30-Day Pilot'}
         </span>
         {!open && bump && (
           <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-red-500 border-2 border-[#0b1829]" />
@@ -123,9 +123,9 @@ export default function ChatWidget() {
                 <Wrench className="w-5 h-5 text-[#FFA800]" />
               </div>
               <div>
-                <h3 className="text-white font-extrabold text-base leading-tight">Free Admin Audit</h3>
+                <h3 className="text-white font-extrabold text-base leading-tight">Free 30-Day Pilot</h3>
                 <p className="text-[#99daff] text-xs leading-snug mt-1">
-                  See exactly where your admin hours are going — and how to get them back.
+                  Try our Night Watch bundle risk-free for 30 days. No commitment, no card required.
                 </p>
               </div>
             </div>
