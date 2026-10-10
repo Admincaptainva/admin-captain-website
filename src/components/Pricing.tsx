@@ -7,19 +7,18 @@ const plans = [
     icon: Moon,
     badge: null,
     name: 'Night Watch',
-    tagline: 'A real person answers your evening calls, and your line never goes to voicemail after that.',
-    cta: 'Get Your Free Consultation',
-    ctaHref: 'https://calendly.com/contact-admincaptainva/15-minute-phone-audit',
+    tagline: 'Never send a caller to voicemail again.',
+    cta: 'Start Free',
+    ctaHref: '#contact',
     featured: false,
-    bestFor: 'Owners who want every after-hours call answered and a clear view of the work coming in.',
+    bestFor: 'Practices that want every call answered without adding staff.',
     upgradeNote: null,
     features: [
-      'Live agent for your evening calls',
-      'Booking line for late nights and weekends',
-      'Emergencies sent straight to you or your on-call tech',
-      'Appointments booked into your calendar',
-      'Morning summary of overnight calls',
-      'Weekly call & lead scorecard',
+      'AI answers every after-hours call',
+      'Caller info and reason captured',
+      'Emergencies sent to your on-call doctor',
+      'Booking link texted to callers',
+      'Morning summary',
     ],
   },
   {
@@ -27,20 +26,19 @@ const plans = [
     icon: Sailboat,
     badge: 'Most Popular',
     name: 'All Hands On Deck',
-    tagline: 'Every call answered. Every lead followed up. A live receptionist covers your days, evenings, and weekends.',
-    cta: 'Get Your Free Consultation',
-    ctaHref: 'https://calendly.com/contact-admincaptainva/15-minute-phone-audit',
+    tagline: 'A real person answers your evening calls. AI covers the rest of the night.',
+    cta: 'Start Free',
+    ctaHref: '#contact',
     featured: true,
-    bestFor: 'Owners who want every call answered and every lead followed up, without handling the phones themselves.',
+    bestFor: 'Practices losing new patients to voicemail after closing time.',
     upgradeNote: null,
     features: [
-      'Live receptionist from morning to night, 7 days a week',
-      'Booking line overnight, with callbacks first thing',
-      'Fast follow-up on every new lead',
-      'Scheduling, confirmations, and reminders',
-      'Weekly performance scorecard',
-      '1 service of your choice from our Service Menu',
-      'Monthly Office Credits for additional tasks',
+      'Live receptionist Mon–Fri closing time–8:30pm',
+      'New patients and emergency slots booked',
+      'AI after 8:30pm and weekends',
+      'Emergencies sent to your on-call doctor',
+      'Morning summary',
+      'Weekly scorecard',
     ],
   },
   {
@@ -48,17 +46,20 @@ const plans = [
     icon: Anchor,
     badge: null,
     name: 'Captain Coverage',
-    tagline: 'Your front office, handled. Everything in All Hands On Deck, plus the services that grow revenue and protect profit — for less than a part-time office hire.',
-    cta: 'Get Your Free Consultation',
-    ctaHref: 'https://calendly.com/contact-admincaptainva/15-minute-phone-audit',
+    tagline: 'Every call caught, day and night. We back up your front desk, not replace it.',
+    cta: 'Start Free',
+    ctaHref: '#contact',
     featured: false,
-    bestFor: 'Owners who want their entire office handled, so they can focus on the field and growing the business.',
+    bestFor: "Busy practices whose front desk can't get to every call.",
     upgradeNote: null,
     features: [
-      'Everything in "All Hands On Deck"',
-      '4 services of your choice from our Service Menu',
-      'Larger monthly Office Credits balance',
-      'Priority support',
+      'Live backup for missed daytime calls',
+      'Live evenings and weekend mornings',
+      'AI all other hours',
+      'Missed-call callbacks and fast lead follow-up',
+      'Confirmations and reminders',
+      '225 outbound contacts per month ($2 each after)',
+      'Weekly scorecard',
     ],
   },
 ];
@@ -71,7 +72,7 @@ export default function Pricing() {
       <div className="absolute -top-64 -left-64 w-[800px] h-[800px] rounded-full bg-gold-400/10 blur-[120px] pointer-events-none" />
       <div className="absolute -bottom-64 -right-64 w-[800px] h-[800px] rounded-full bg-sky-400/10 blur-[120px] pointer-events-none" />
 
-      <div className="relative max-w-7xl mx-auto px-5 sm:px-8 lg:px-12">
+      <div className="relative max-w-[88rem] mx-auto px-5 sm:px-8 lg:px-12">
         <div ref={ref} className={`reveal ${visible ? 'is-visible' : ''} text-center mb-16`}>
           <span className="inline-flex items-center gap-2 text-gold-400 text-sm font-bold uppercase tracking-widest mb-4">
             <span className="w-6 h-px bg-gold-400/50 inline-block" />
@@ -82,11 +83,11 @@ export default function Pricing() {
             Support that scales with your business
           </h2>
           <p className="text-sky-400 text-lg max-w-2xl mx-auto">
-            Your operation runs on execution. So do we. Start with the support you need today and scale up as your business grows.
+            Your practice runs on patient care. So do we. Start with the call coverage you need today and scale up as your practice grows.
           </p>
         </div>
 
-        {/* Free 30-Day Pilot banner */}
+        {/* Free plan banner */}
         <div className={`reveal ${visible ? 'is-visible' : ''} mb-12`}>
           <div className="max-w-3xl mx-auto rounded-2xl bg-gradient-to-r from-gold-400/15 via-gold-400/10 to-sky-400/15 border border-gold-400/30 px-6 py-5 flex items-center gap-4 shadow-lg shadow-gold-400/10">
             <div className="w-12 h-12 rounded-xl bg-gold-400/20 flex items-center justify-center flex-shrink-0">
@@ -94,10 +95,10 @@ export default function Pricing() {
             </div>
             <div>
               <p className="text-white font-bold text-base">
-                Free 30-Day Pilot for Night Watch!
+                Start free with 30 AI-answered calls a month
               </p>
               <p className="text-sky-400/80 text-sm mt-0.5">
-                Try our AI Receptionist for free!
+                No contract, no card required. Upgrade anytime.
               </p>
             </div>
           </div>
@@ -133,17 +134,22 @@ export default function Pricing() {
                 <div className="p-8 pb-0">
                   {/* Icon + name */}
                   <div className="flex items-center gap-3 mb-4">
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                      plan.featured ? 'bg-gold-400/15 border border-gold-400/30' : 'bg-ink-500/40 border border-ink-500/60'
+                    <div className={`w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform duration-300 group-hover:scale-105 ${
+                      plan.featured ? 'bg-gradient-to-br from-gold-400/20 to-gold-400/5 border border-gold-400/30' : 'bg-ink-500/40 border border-ink-500/60 group-hover:border-sky-400/30'
                     }`}>
-                      <plan.icon className={`w-6 h-6 ${plan.featured ? 'text-gold-400' : 'text-sky-400'}`} />
+                      <plan.icon className={`w-7 h-7 ${plan.featured ? 'text-gold-400' : 'text-sky-400'}`} />
                     </div>
-                    <h3 className="text-2xl font-extrabold text-white tracking-tight font-display">{plan.name}</h3>
+                    <h3 className="text-2xl lg:text-3xl font-extrabold text-white tracking-tight font-display">{plan.name}</h3>
                   </div>
 
-                  <p className={`text-sm leading-relaxed mb-6 ${plan.featured ? 'text-gold-400/90' : 'text-sky-400/75'}`}>
-                    {plan.tagline}
-                  </p>
+                  <div className={`rounded-xl px-4 py-3 mb-6 border ${plan.featured ? 'bg-gold-400/8 border-gold-400/20' : 'bg-sky-400/5 border-sky-400/15'}`}>
+                    <div className="flex items-start gap-2">
+                      <span className={`mt-1 w-1.5 h-1.5 rounded-full flex-shrink-0 ${plan.featured ? 'bg-gold-400' : 'bg-sky-400'}`} />
+                      <p className={`text-sm leading-relaxed font-medium ${plan.featured ? 'text-gold-400' : 'text-sky-300'}`}>
+                        {plan.tagline}
+                      </p>
+                    </div>
+                  </div>
 
                 </div>
 
@@ -154,8 +160,8 @@ export default function Pricing() {
                   </p>
                   <ul className="space-y-3 mb-8">
                     {plan.features.map((f) => (
-                      <li key={f} className="flex items-start gap-3">
-                        <span className={`mt-0.5 w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${
+                      <li key={f} className="flex items-start gap-3 group/item">
+                        <span className={`mt-0.5 w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 transition-transform duration-200 group-hover/item:scale-110 ${
                           plan.featured ? 'bg-gold-400/15 text-gold-400' : 'bg-sky-400/10 text-sky-400'
                         }`}>
                           <Check className="w-3 h-3" strokeWidth={3} />
@@ -163,7 +169,7 @@ export default function Pricing() {
                         <span className={`text-sm leading-snug ${
                           f.startsWith('Everything in')
                             ? 'text-white font-semibold'
-                            : 'text-sky-400/70'
+                            : 'text-sky-300/85'
                         }`}>
                           {f}
                         </span>
