@@ -13,7 +13,7 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const { name, email, phone, trade, message } = await req.json();
+    const { name, practice_name, email, phone, specialty, voicemail_count } = await req.json();
 
     if (!name || !email) {
       return new Response(
@@ -30,10 +30,11 @@ Deno.serve(async (req: Request) => {
 
     const { error: dbError } = await supabase.from("contact_leads").insert({
       name,
+      practice_name: practice_name || null,
       email,
       phone: phone || null,
-      trade: trade || null,
-      message: message || null,
+      specialty: specialty || null,
+      voicemail_count: voicemail_count || null,
     });
 
     if (dbError) throw new Error(dbError.message);
@@ -46,10 +47,11 @@ Deno.serve(async (req: Request) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           full_name: name,
+          practice_name: practice_name || "",
           email,
           phone: phone || "",
-          trade: trade || "",
-          message: message || "",
+          specialty: specialty || "",
+          voicemail_count: voicemail_count || "",
         }),
       });
     } catch (zapErr) {
@@ -61,16 +63,17 @@ Deno.serve(async (req: Request) => {
     if (resendKey) {
       const resend = new Resend(resendKey);
 
-      const tradeLabel = trade || "Not specified";
+      const specialtyLabel = specialty || "Not specified";
+      const practiceLabel = practice_name || "Not provided";
       const phoneLabel = phone || "Not provided";
-      const messageLabel = message || "None";
+      const voicemailLabel = voicemail_count || "Not provided";
 
       // 1. Admin notification email
       await resend.emails.send({
         from: "Abe Ige <abe@useadmincaptainva.com>",
         to: "contact@admincaptainva.com",
         replyTo: email,
-        subject: `New Lead: ${name} — ${tradeLabel}`,
+        subject: `New Free Plan Sign-Up: ${name} — ${practiceLabel}`,
         html: `
           <!DOCTYPE html>
           <html>
@@ -79,27 +82,30 @@ Deno.serve(async (req: Request) => {
             <style>
               body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #333333; margin: 0; padding: 20px; background-color: #f9fafb; }
               .container { max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-              .header { background-color: #1e3a8a; padding: 24px; text-align: center; }
-              .header h1 { color: #ffffff; margin: 0; font-size: 20px; font-weight: 600; letter-spacing: 0.5px; }
+              .header { background-color: #0f1f38; padding: 24px; text-align: center; }
+              .header h1 { color: #FFA800; margin: 0; font-size: 20px; font-weight: 600; letter-spacing: 0.5px; }
               .content { padding: 32px; }
               .lead-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
               .lead-table th, .lead-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #f3f4f6; }
-              .lead-table th { background-color: #f8fafc; color: #475569; font-weight: 600; width: 30%; font-size: 14px; }
+              .lead-table th { background-color: #f8fafc; color: #475569; font-weight: 600; width: 35%; font-size: 14px; }
               .lead-table td { color: #1e293b; font-size: 15px; }
-              .message-box { background-color: #f8fafc; border-left: 4px solid #3b82f6; padding: 16px; margin-top: 8px; border-radius: 0 4px 4px 0; font-style: italic; color: #334155; line-height: 1.5; }
               .footer { background-color: #f1f5f9; padding: 16px; text-align: center; font-size: 13px; color: #64748b; border-top: 1px solid #e2e8f0; }
             </style>
           </head>
           <body>
             <div class="container">
               <div class="header">
-                <h1>New Lead Notification</h1>
+                <h1>New Free Plan Sign-Up</h1>
               </div>
               <div class="content">
                 <table class="lead-table">
                   <tr>
                     <th>Name</th>
                     <td>${name}</td>
+                  </tr>
+                  <tr>
+                    <th>Practice</th>
+                    <td>${practiceLabel}</td>
                   </tr>
                   <tr>
                     <th>Email</th>
@@ -110,15 +116,14 @@ Deno.serve(async (req: Request) => {
                     <td>${phoneLabel}</td>
                   </tr>
                   <tr>
-                    <th>Trade</th>
-                    <td><span style="background-color: #dbeafe; color: #1e40af; padding: 4px 8px; border-radius: 4px; font-size: 13px; font-weight: 500;">${tradeLabel}</span></td>
+                    <th>Specialty</th>
+                    <td><span style="background-color: #dbeafe; color: #1e40af; padding: 4px 8px; border-radius: 4px; font-size: 13px; font-weight: 500;">${specialtyLabel}</span></td>
+                  </tr>
+                  <tr>
+                    <th>After-hours voicemail/week</th>
+                    <td>${voicemailLabel}</td>
                   </tr>
                 </table>
-
-                <h3 style="color: #475569; font-size: 14px; font-weight: 600; margin-top: 24px; margin-bottom: 8px;">Message / Inquiry Details:</h3>
-                <div class="message-box">
-                  "${messageLabel}"
-                </div>
               </div>
               <div class="footer">
                 <strong>Reply directly to this email</strong> to reach the lead.
@@ -133,7 +138,7 @@ Deno.serve(async (req: Request) => {
       await resend.emails.send({
         from: "Abe Ige <abe@useadmincaptainva.com>",
         to: email,
-        subject: "Got your message — let's find a time",
+        subject: "Welcome — your free plan is being activated",
         html: `
           <!DOCTYPE html>
           <html>
@@ -142,39 +147,44 @@ Deno.serve(async (req: Request) => {
             <style>
               body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #333333; margin: 0; padding: 20px; background-color: #f9fafb; }
               .container { max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-              .header { background-color: #1e3a8a; padding: 24px; text-align: center; }
-              .header h1 { color: #ffffff; margin: 0; font-size: 20px; font-weight: 600; letter-spacing: 0.5px; }
+              .header { background-color: #0f1f38; padding: 24px; text-align: center; }
+              .header h1 { color: #FFA800; margin: 0; font-size: 20px; font-weight: 600; letter-spacing: 0.5px; }
               .content { padding: 32px; line-height: 1.6; color: #334155; font-size: 15px; }
-              .cta { display: inline-block; background-color: #eeba2b; color: #0b1829; font-weight: 600; text-decoration: none; padding: 12px 24px; border-radius: 8px; margin: 20px 0; }
+              .highlight { background-color: #fef3c7; border-left: 4px solid #FFA800; padding: 16px; margin: 20px 0; border-radius: 0 4px 4px 0; }
+              .cta { display: inline-block; background-color: #FFA800; color: #0b1829; font-weight: 600; text-decoration: none; padding: 12px 24px; border-radius: 8px; margin: 20px 0; }
               .footer { background-color: #f1f5f9; padding: 16px; text-align: center; font-size: 13px; color: #64748b; border-top: 1px solid #e2e8f0; }
             </style>
           </head>
           <body>
             <div class="container">
               <div class="header">
-                <h1>Thanks for reaching out, ${name}!</h1>
+                <h1>You're in, ${name}!</h1>
               </div>
               <div class="content">
-                <p>Thanks for reaching out to AdminCaptainVA. I've got your info and will personally follow up within one business day.</p>
+                <p>Thanks for signing up for your free plan. Your first 30 AI-answered after-hours calls every month are on us — no contract, no card required.</p>
+                <div class="highlight">
+                  <strong>What happens next:</strong> One of our team members will contact you within 1 business day to get your account set up and your AI receptionist trained on your practice's scripts.
+                </div>
                 <p>Phone: (763) 496-6613 · Email: Contact@admincaptainva.com</p>
-                <p>If you'd rather skip the back-and-forth, grab a time that works for you here and we'll talk about what's eating up your admin hours:</p>
-                <p><a href="https://calendly.com/contact-admincaptainva/15-minute-phone-audit" class="cta">Book your 15-minute phone audit</a></p>
+                <p>Want to speed things up? Grab a time that works for you:</p>
+                <p><a href="https://calendly.com/contact-admincaptainva/15-minute-phone-audit" class="cta">Book your 15-minute setup call</a></p>
                 <p>— Abe, AdminCaptainVA</p>
               </div>
               <div class="footer">
-                AdminCaptainVA · Front Office Agency for Service Professionals & More
+                AdminCaptainVA · Dental Call Answering Service
               </div>
             </div>
           </body>
           </html>
         `,
-        text: `Thanks for reaching out to AdminCaptainVA. I've got your info and will personally follow up within one business day.
+        text: `Thanks for signing up for your free plan, ${name}! Your first 30 AI-answered after-hours calls every month are on us — no contract, no card required.
 
-If you'd rather skip the back-and-forth, grab a time that works for you here and we'll talk about what's eating up your admin hours:
+One of our team members will contact you within 1 business day to get your account set up.
+
+Want to speed things up? Book a 15-minute setup call:
 https://calendly.com/contact-admincaptainva/15-minute-phone-audit
 
 — Abe, AdminCaptainVA
-AdminCaptainVA · Front Office Agency for Service Professionals & More
 Phone: (763) 496-6613 · Email: Contact@admincaptainva.com`,
       });
     }
