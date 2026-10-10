@@ -1,24 +1,14 @@
 import { useState, useRef, useEffect } from 'react';
 import { X, Send, CheckCircle, AlertCircle, Clock, Zap } from 'lucide-react';
-
-const trades = [
-  'HVAC',
-  'Plumbing',
-  'Electrical',
-  'Roofing',
-  'Landscaping',
-  'General Contracting',
-  'Painting',
-  'Flooring',
-  'Pest Control',
-  'Other',
-];
+import { submitLead, SPECIALTIES, CALL_VOLUME_OPTIONS } from '../lib/leads';
 
 type Status = 'idle' | 'loading' | 'success' | 'error';
 
+const EMPTY_FORM = { name: '', practice: '', email: '', phone: '', specialty: '', volume: '', message: '' };
+
 export default function ChatWidget() {
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ name: '', email: '', phone: '', trade: '', message: '' });
+  const [form, setForm] = useState(EMPTY_FORM);
   const [status, setStatus] = useState<Status>('idle');
   const [errorMsg, setErrorMsg] = useState('');
   const [bump, setBump] = useState(false);
@@ -45,38 +35,28 @@ export default function ChatWidget() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (status === 'loading') return;
     setStatus('loading');
     setErrorMsg('');
 
-    try {
-      const res = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/notify-lead`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-          },
-          body: JSON.stringify({
-            name: form.name,
-            email: form.email,
-            phone: form.phone || null,
-            trade: form.trade || null,
-            message: form.message || null,
-          }),
-        }
-      );
+    // submitLead never throws; it logs failures and returns a UI-safe message.
+    const result = await submitLead({
+      full_name: form.name,
+      practice_name: form.practice,
+      email: form.email,
+      phone: form.phone,
+      specialty: form.specialty,
+      call_volume: form.volume,
+      message: form.message,
+      source: 'chat_widget',
+    });
 
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body.error || `Request failed (${res.status})`);
-      }
-
+    if (result.ok) {
       setStatus('success');
-      setForm({ name: '', email: '', phone: '', trade: '', message: '' });
-    } catch {
+      setForm(EMPTY_FORM);
+    } else {
       setStatus('error');
-      setErrorMsg('Something went wrong. Please try again or call us at (763) 496-6613.');
+      setErrorMsg(result.error);
     }
   }
 
@@ -145,9 +125,9 @@ export default function ChatWidget() {
                 <div className="w-14 h-14 rounded-full bg-green-500/10 flex items-center justify-center mx-auto mb-4">
                   <CheckCircle className="w-7 h-7 text-green-400" />
                 </div>
-                <h4 className="text-white text-base font-bold mb-2">Got it — check your inbox!</h4>
+                <h4 className="text-white text-base font-bold mb-2">Got it — you're all set!</h4>
                 <p className="text-[#99daff]/80 text-sm leading-relaxed mb-5">
-                  We just sent you a confirmation email with next steps. No matter the hour, your request is in and we'll follow up fast.
+                  Your request is in. One of our team members will contact you within 1 business day to get your free plan activated.
                 </p>
                 <button
                   onClick={() => setStatus('idle')}
@@ -169,7 +149,23 @@ export default function ChatWidget() {
                     required
                     value={form.name}
                     onChange={handleChange}
-                    placeholder="Mike Larsen"
+                    placeholder="Dr. Jane Smith"
+                    className={inputClass}
+                  />
+                </div>
+
+                <div>
+                  <label className={labelClass} htmlFor="cw-practice">
+                    Practice Name <span className="text-[#FFA800]">*</span>
+                  </label>
+                  <input
+                    id="cw-practice"
+                    name="practice"
+                    type="text"
+                    required
+                    value={form.practice}
+                    onChange={handleChange}
+                    placeholder="Smile Dental Group"
                     className={inputClass}
                   />
                 </div>
@@ -185,7 +181,7 @@ export default function ChatWidget() {
                     required
                     value={form.email}
                     onChange={handleChange}
-                    placeholder="mike@larsenhvac.com"
+                    placeholder="jane@smiledental.com"
                     className={inputClass}
                   />
                 </div>
@@ -206,18 +202,19 @@ export default function ChatWidget() {
                     />
                   </div>
                   <div>
-                    <label className={labelClass} htmlFor="cw-trade">
-                      Your Trade
+                    <label className={labelClass} htmlFor="cw-specialty">
+                      Specialty <span className="text-[#FFA800]">*</span>
                     </label>
                     <select
-                      id="cw-trade"
-                      name="trade"
-                      value={form.trade}
+                      id="cw-specialty"
+                      name="specialty"
+                      required
+                      value={form.specialty}
                       onChange={handleChange}
-                      className={`w-full bg-[#0e2242] border border-[#1e3d6e] focus:border-[#FFA800] outline-none text-sm rounded-lg px-3 py-2.5 transition-colors ${form.trade === '' ? 'text-[#5a7ba8]' : 'text-white'}`}
+                      className={`w-full bg-[#0e2242] border border-[#1e3d6e] focus:border-[#FFA800] outline-none text-sm rounded-lg px-3 py-2.5 transition-colors ${form.specialty === '' ? 'text-[#5a7ba8]' : 'text-white'}`}
                     >
                       <option value="">Select…</option>
-                      {trades.map((t) => (
+                      {SPECIALTIES.map((t) => (
                         <option key={t} value={t}>{t}</option>
                       ))}
                     </select>
@@ -225,8 +222,26 @@ export default function ChatWidget() {
                 </div>
 
                 <div>
+                  <label className={labelClass} htmlFor="cw-volume">
+                    After-hours calls to voicemail per week <span className="text-[#99daff]/40 font-normal">(optional)</span>
+                  </label>
+                  <select
+                    id="cw-volume"
+                    name="volume"
+                    value={form.volume}
+                    onChange={handleChange}
+                    className={`w-full bg-[#0e2242] border border-[#1e3d6e] focus:border-[#FFA800] outline-none text-sm rounded-lg px-3 py-2.5 transition-colors ${form.volume === '' ? 'text-[#5a7ba8]' : 'text-white'}`}
+                  >
+                    <option value="">Select a range…</option>
+                    {CALL_VOLUME_OPTIONS.map((v) => (
+                      <option key={v} value={v}>{v}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
                   <label className={labelClass} htmlFor="cw-message">
-                    What's eating up your evenings? <span className="text-[#99daff]/40 font-normal">(optional)</span>
+                    Anything we should know? <span className="text-[#99daff]/40 font-normal">(optional)</span>
                   </label>
                   <textarea
                     id="cw-message"
@@ -234,7 +249,7 @@ export default function ChatWidget() {
                     rows={3}
                     value={form.message}
                     onChange={handleChange}
-                    placeholder="e.g. I can't keep up with estimate follow-ups…"
+                    placeholder="e.g. We miss a lot of new-patient calls after 5pm…"
                     className={`${inputClass} resize-none`}
                   />
                 </div>

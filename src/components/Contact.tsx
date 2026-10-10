@@ -1,23 +1,7 @@
 import { useState } from 'react';
 import { Phone, Mail, Clock, CheckCircle, AlertCircle, Sparkles } from 'lucide-react';
 import { useReveal } from '../hooks/useReveal';
-
-const specialties = [
-  'Implant & Denture Centers',
-  'Oral Surgeons & Periodontists',
-  'Endodontists',
-  'Orthodontists',
-  'Cosmetic & Restorative',
-  'Pediatric Dentists',
-  'Other',
-];
-
-const voicemailOptions = [
-  'Less than 10',
-  '10–25',
-  '25–50',
-  '50+',
-];
+import { submitLead, SPECIALTIES, CALL_VOLUME_OPTIONS } from '../lib/leads';
 
 type Status = 'idle' | 'loading' | 'success' | 'error';
 
@@ -40,39 +24,27 @@ export default function Contact() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (status === 'loading') return;
     setStatus('loading');
     setErrorMsg('');
 
-    try {
-      const res = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/notify-lead`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-          },
-          body: JSON.stringify({
-            name: form.name,
-            practice_name: form.practice,
-            email: form.email,
-            phone: form.phone || null,
-            specialty: form.specialty || null,
-            voicemail_count: form.voicemail || null,
-          }),
-        }
-      );
+    // submitLead never throws; it logs failures and returns a UI-safe message.
+    const result = await submitLead({
+      full_name: form.name,
+      practice_name: form.practice,
+      email: form.email,
+      phone: form.phone,
+      specialty: form.specialty,
+      call_volume: form.voicemail,
+      source: 'contact_form',
+    });
 
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body.error || `Request failed (${res.status})`);
-      }
-
+    if (result.ok) {
       setStatus('success');
       setForm({ name: '', practice: '', email: '', phone: '', specialty: '', voicemail: '' });
-    } catch {
+    } else {
       setStatus('error');
-      setErrorMsg('Something went wrong. Please try again or call us directly.');
+      setErrorMsg(result.error);
     }
   }
 
@@ -255,7 +227,7 @@ export default function Contact() {
                   }`}
                 >
                   <option value="">Select your specialty</option>
-                  {specialties.map((s) => (
+                  {SPECIALTIES.map((s) => (
                     <option key={s} value={s}>
                       {s}
                     </option>
@@ -279,7 +251,7 @@ export default function Contact() {
                   }`}
                 >
                   <option value="">Select a range</option>
-                  {voicemailOptions.map((v) => (
+                  {CALL_VOLUME_OPTIONS.map((v) => (
                     <option key={v} value={v}>
                       {v}
                     </option>
