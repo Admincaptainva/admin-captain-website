@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { X, Send, CheckCircle, AlertCircle, Wrench, Clock } from 'lucide-react';
+import { X, Send, CheckCircle, AlertCircle, Clock, Zap } from 'lucide-react';
 
 const trades = [
   'HVAC',
@@ -92,19 +92,22 @@ export default function ChatWidget() {
           setOpen((v) => !v);
           setBump(false);
         }}
-        aria-label={open ? 'Close free 30-day pilot form' : 'Open free 30-day pilot form'}
+        aria-label={open ? 'Close form' : 'Start today for free'}
         className={`fixed bottom-5 right-5 sm:bottom-6 sm:right-6 z-50 flex items-center gap-2.5 rounded-full bg-[#FFA800] hover:bg-[#E09600] text-[#0b1829] pl-4 pr-5 py-3.5 shadow-lg shadow-[#FFA800]/30 transition-all duration-300 hover:scale-105 active:scale-95 ${bump && !open ? 'animate-[pulse_2s_ease-in-out_infinite]' : ''}`}
       >
         {open ? (
           <X className="w-5 h-5 flex-shrink-0" />
         ) : (
-          <Wrench className="w-5 h-5 flex-shrink-0" />
+          <span className="relative flex-shrink-0">
+            <span className="absolute inset-0 rounded-full bg-red-500/40 blur-[6px] animate-[pulse_1.5s_ease-in-out_infinite]" />
+            <Zap className="w-5 h-5 text-red-600 fill-red-500 relative drop-shadow-[0_0_4px_rgba(239,68,68,0.8)]" />
+          </span>
         )}
-        <span className="font-bold text-sm whitespace-nowrap">
-          {open ? 'Close' : 'Free 30-Day Pilot'}
+        <span className="font-extrabold text-sm whitespace-nowrap uppercase tracking-wide">
+          {open ? 'Close' : 'Start Today for Free!'}
         </span>
-        {!open && bump && (
-          <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-red-500 border-2 border-[#0b1829]" />
+        {!open && (
+          <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-red-500 border-2 border-[#0b1829] animate-pulse" />
         )}
       </button>
 
@@ -120,12 +123,12 @@ export default function ChatWidget() {
           <div className="bg-gradient-to-r from-[#0e2242] to-[#13325f] px-5 py-5 border-b border-[#1e3d6e]">
             <div className="flex items-start gap-3">
               <div className="w-11 h-11 rounded-xl bg-[#FFA800]/15 flex items-center justify-center flex-shrink-0">
-                <Wrench className="w-5 h-5 text-[#FFA800]" />
+                <Zap className="w-5 h-5 text-[#FFA800]" />
               </div>
               <div>
-                <h3 className="text-white font-extrabold text-base leading-tight">Free 30-Day Pilot</h3>
+                <h3 className="text-white font-extrabold text-base leading-tight">Start Today for Free</h3>
                 <p className="text-[#99daff] text-xs leading-snug mt-1">
-                  Try our Night Watch bundle risk-free for 30 days. No commitment, no card required.
+                  Try our AI answering service with 30 free patient calls. No commitment, no card required.
                 </p>
               </div>
             </div>
@@ -253,7 +256,7 @@ export default function ChatWidget() {
                   ) : (
                     <>
                       <Send className="w-4 h-4" />
-                      Get my free audit
+                      Claim 30 Free Calls
                     </>
                   )}
                 </button>
