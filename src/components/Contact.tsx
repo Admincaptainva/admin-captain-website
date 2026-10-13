@@ -1,7 +1,23 @@
 import { useState } from 'react';
 import { Phone, Mail, Clock, CheckCircle, AlertCircle, Sparkles } from 'lucide-react';
 import { useReveal } from '../hooks/useReveal';
-import { submitLead, SPECIALTIES, CALL_VOLUME_OPTIONS } from '../lib/leads';
+
+const specialties = [
+  'Implant & Denture Centers',
+  'Oral Surgeons & Periodontists',
+  'Endodontists',
+  'Orthodontists',
+  'Cosmetic & Restorative',
+  'Pediatric Dentists',
+  'Other',
+];
+
+const voicemailOptions = [
+  'Less than 10',
+  '10–25',
+  '25–50',
+  '50+',
+];
 
 type Status = 'idle' | 'loading' | 'success' | 'error';
 
@@ -24,27 +40,46 @@ export default function Contact() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (status === 'loading') return;
+
+    if (!form.name.trim() || !form.email.trim()) {
+      setStatus('error');
+      setErrorMsg('Full name and email are required.');
+      return;
+    }
+
     setStatus('loading');
     setErrorMsg('');
 
-    // submitLead never throws; it logs failures and returns a UI-safe message.
-    const result = await submitLead({
-      full_name: form.name,
-      practice_name: form.practice,
-      email: form.email,
-      phone: form.phone,
-      specialty: form.specialty,
-      call_volume: form.voicemail,
-      source: 'contact_form',
-    });
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/notify-lead`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({
+            name: form.name,
+            practice_name: form.practice,
+            email: form.email,
+            phone: form.phone || null,
+            specialty: form.specialty || null,
+            voicemail_count: form.voicemail || null,
+          }),
+        }
+      );
 
-    if (result.ok) {
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error || `Request failed (${res.status})`);
+      }
+
       setStatus('success');
       setForm({ name: '', practice: '', email: '', phone: '', specialty: '', voicemail: '' });
-    } else {
+    } catch (err) {
       setStatus('error');
-      setErrorMsg(result.error);
+      setErrorMsg(err instanceof Error ? err.message : 'Something went wrong. Please try again or call us directly.');
     }
   }
 
@@ -227,7 +262,7 @@ export default function Contact() {
                   }`}
                 >
                   <option value="">Select your specialty</option>
-                  {SPECIALTIES.map((s) => (
+                  {specialties.map((s) => (
                     <option key={s} value={s}>
                       {s}
                     </option>
@@ -251,7 +286,7 @@ export default function Contact() {
                   }`}
                 >
                   <option value="">Select a range</option>
-                  {CALL_VOLUME_OPTIONS.map((v) => (
+                  {voicemailOptions.map((v) => (
                     <option key={v} value={v}>
                       {v}
                     </option>

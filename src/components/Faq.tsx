@@ -41,7 +41,7 @@ const categories: {
       },
       {
         q: 'Will patients know they\u2019re talking to AI?',
-        a: 'Yes. It introduces itself as your practice\u2019s virtual assistant. Most callers just want their question answered and a time booked.',
+        a: 'Yes. It introduces itself as your practice\u2019s call answering service for dental specialty. Most callers just want their question answered and a time booked.',
       },
       {
         q: 'Can you book appointments in our scheduling software?',
