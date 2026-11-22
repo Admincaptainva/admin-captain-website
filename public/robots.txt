@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /dental-onboarding
+Disallow: /admin/chats
+
+Sitemap: https://admincaptainva.com/sitemap.xml
