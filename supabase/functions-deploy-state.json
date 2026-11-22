@@ -1,0 +1,21 @@
+{
+  "projectId": "68369079",
+  "functions": {
+    "chat-ai": {
+      "hasChanged": false,
+      "hash": "00da1f19fc47cc44256a01f1b50c247cb6363b96b874e6f80265ee00c55de3a8"
+    },
+    "notify-lead": {
+      "hasChanged": false,
+      "hash": "9d35df303fad92253833a653e6c64ab3abff68fab1172e4bbdef3b5985f69e50"
+    },
+    "notify-onboarding": {
+      "hasChanged": false,
+      "hash": "b3d96464ee3968830bd77054a73a1baf93fba2ef6de069331b451dd9c035cf93"
+    },
+    "submit-partner": {
+      "hasChanged": false,
+      "hash": "2623fe414f932f0db7c641bd2c7c8e31de9014180c2ec3d1276a324edf97b217"
+    }
+  }
+}
